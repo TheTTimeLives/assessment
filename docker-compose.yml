@@ -1,0 +1,61 @@
+version: '3.8'
+# Specifies the version of the Docker Compose file format. Version 3.8 supports Docker Engine 19.03.0+.
+
+services:
+  # Defines the services (containers) that are part of this setup.
+
+  app:
+    # Names the first service "app", typically representing your application.
+
+    build: .
+    # Tells Docker Compose to build an image from the Dockerfile located in the current directory.
+
+    image: java-programming-exercise-app
+    # Names the built image "java-programming-exercise-app" for easier reference.
+
+    depends_on:
+      - db
+    # Specifies that the "app" service depends on the "db" service. This ensures "db" is started before "app".
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/assessment
+      # Sets an environment variable inside the "app" container for the database URL, using "db" as the hostname which Docker Compose resolves to the "db" service's IP address.
+
+      SPRING_DATASOURCE_USERNAME: postgres
+      # Sets an environment variable for the database username.
+
+      SPRING_DATASOURCE_PASSWORD: admin
+      # Sets an environment variable for the database password.
+
+    ports:
+      - "8080:8080"
+    # Maps port 8080 of the host to port 8080 of the "app" container, allowing external access to the app on port 8080.
+
+  db:
+    # Names the second service "db", typically representing your database.
+
+    image: postgres:14
+    # Specifies the use of the latest official PostgreSQL image from Docker Hub for the "db" service.
+
+    environment:
+      POSTGRES_DB: assessment
+      # Sets an environment variable inside the "db" container to create a database named "assessment".
+
+      POSTGRES_USER: postgres
+      # Corrected to match the provided username for consistency.
+
+      POSTGRES_PASSWORD: admin
+      # Sets the password for the "admin" user.
+
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+      # This volume ensures data persistence across container restarts.
+
+    ports:
+      - "5433:5432"
+      # Maps port 5433 of the host to port 5432 of the "db" container, allowing external access to the database.
+
+volumes:
+  db-data:
+  # Declares a volume named "db-data" that Docker Compose will automatically manage. This volume is used for persisting the PostgreSQL database data.
